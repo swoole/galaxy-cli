@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+
+message VersionCreate{
+  string version=1;
+  string commit_id=2;
+  string notes=3;
+  string bin_name=4;
+  string md5=5;
+  string os=6;
+  string arch=7;
+  int64 size=8;
+  string token=9;
+}

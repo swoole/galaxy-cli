@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+
+message AccountIdConfirmReq{
+  string password = 1;
+}
+
+message AccountIdConfirmRsp{
+  string confirm_token = 1;
+}

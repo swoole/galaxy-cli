@@ -1,0 +1,30 @@
+FROM golang:1.26-alpine AS build
+
+WORKDIR /src
+ARG GOPROXY=https://goproxy.cn,direct
+ARG GOSUMDB=sum.golang.google.cn
+ENV GOPROXY=$GOPROXY
+ENV GOSUMDB=$GOSUMDB
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+ARG VERSION=dev
+ARG AGENT_IMAGE=unknown
+RUN CGO_ENABLED=0 go build \
+    -trimpath \
+    -ldflags="-s -w -X galaxy/pkg/buildVariable.BuildVersion=${VERSION} -X galaxy/pkg/buildVariable.AgentImage=${AGENT_IMAGE}" \
+    -o /out/galaxy-agent \
+    ./cmd/galaxy-agent
+
+FROM alpine:3.22 AS certificates
+
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories \
+    && apk add --no-cache ca-certificates
+
+FROM scratch
+
+COPY --from=certificates /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /out/galaxy-agent /usr/local/bin/galaxy-agent
+
+ENTRYPOINT ["/usr/local/bin/galaxy-agent"]
+CMD ["run"]

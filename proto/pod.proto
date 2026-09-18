@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "env.proto";
+
+message PodSimpleServiceReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pod_id = 4;
+}
+
+message Port{
+  string name = 1;
+  string protocol = 2;
+  uint32 port = 3;
+  uint32 targetPort = 4;
+}
+
+message PodSimpleServiceRsp{
+  repeated PodSimpleService services = 1;
+}
+message PodSimpleService{
+  uint32 id = 1;
+  string title = 2;
+  string name = 3;
+  repeated Port ports = 4;
+}
+
+message PodListReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pod_id = 4;
+  uint32 page = 5;
+  uint32 pagesize = 6;
+}
+message PodListRsp{
+  uint32 total = 1;
+  uint32 pagesize = 2;
+  uint32 pagenum = 3;
+  uint32 page = 4;
+  repeated PodList data = 5;
+}
+message PodList{
+  string name = 1;
+  string namespace = 2;
+  K8sPodStatus status = 3;
+  k8sPodSpec spec = 4;
+  repeated k8sPodEvent events = 5;
+}
+
+message K8sPodStatus{
+  string hostIP = 1;
+  string phase = 2;
+  string podIP = 3;
+  int64 startTime = 4;
+  repeated k8sPodContainerStatus containerStatuses = 5;
+}
+message k8sPodSpec{
+  string nodeName = 1;
+}
+message k8sPodEvent{
+  string reason = 1;
+  string message = 2;
+  int32 count = 3;
+  string type = 4;
+  int64 age = 5;
+}
+
+message k8sPodContainerStatus{
+  string name = 1;
+  bool ready = 2;
+  uint32 restartCount = 3;
+  bool started = 4;
+  string image = 5;
+  k8sPodContainerStatusState state = 6;
+}
+message k8sPodContainerStatusState{
+  k8sPodContainerStateWaiting waiting = 1;
+  k8sPodContainerStateRunning running = 2;
+  k8sPodContainerStateTerminated terminated = 3;
+}
+message k8sPodContainerStateWaiting {
+  optional string reason = 1;
+  optional string message = 2;
+}
+
+message k8sPodContainerStateRunning {
+  string startedAt = 1;
+}
+message k8sPodContainerStateTerminated {
+  optional int32 exitCode = 1;
+  optional int32 signal = 2;
+  optional string reason = 3;
+  optional string message = 4;
+  optional string startedAt = 5;
+  optional string finishedAt = 6;
+  optional string containerID = 7;
+}
+
+message PodContainersReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 env_id = 4;
+  uint32 cluster_id = 5;
+  uint32 pod_id = 6;
+  string pod_name = 7;
+}
+message PodContainersRsp{
+  repeated PodContainer containers = 1;
+}
+
+message PodContainer{
+  string container_id = 1;
+  string name = 2;
+  uint32 restartCount = 3;
+  string webshell = 4;
+  string cloudshell = 5;
+  string pod_name = 6;
+  PodContainerArgs cloudshell_args = 7;
+}
+
+message PodContainerArgs{
+  uint32 cluster_id = 1;
+  string container = 2;
+  string host = 3;
+  string namespace = 4;
+  string pod = 5;
+  uint32 port = 6;
+  string user = 7;
+}
+
+message PodAllReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+}
+
+message PodAllRsp{
+  repeated PodAllEnv envs=1;
+}
+
+message PodAllEnv{
+  uint32 id=1;
+  EnvType type=2;
+  string title=3;
+  repeated PodAllCluster clusters=4;
+}
+
+message PodAllCluster{
+  uint32 id=1;
+  uint32 type=2;
+  string title=3;
+  uint32 vendor=4;
+  repeated PodAllInstance instances=5;
+}
+
+message PodAllInstance{
+  uint32 id=1;
+  uint32 org_id=2;
+  uint32 group_id=3;
+  uint32 project_id=4;
+  uint32 env_id=5;
+  uint32 cluster_id=6;
+  string group=7;
+  repeated PodAllPods pods=8;
+}
+
+message PodAllPods{
+  string namespace=1;
+  string name=2;
+  k8sPodSpec spec=3;
+  K8sPodStatus status=4;
+}

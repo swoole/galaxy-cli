@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+message PodProfileReloadRsp{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pod_id = 4;
+  bool force_pull=5;
+}
+
+
+message PodProfileScaleRsp{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pod_id = 4;
+  uint32 replicas=5;
+}

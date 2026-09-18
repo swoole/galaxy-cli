@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+
+message Creator{
+  uint32 id = 1;
+  string nickname = 2;
+  string realname = 3;
+  string avatar = 4;
+  string email = 5;
+  string workcode = 6;
+}

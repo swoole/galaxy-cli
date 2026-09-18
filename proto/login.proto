@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+
+message HostInfo{
+  string hostname = 1;
+  string hostid = 2; // ex: uuid
+  string os = 3;  // ex: freebsd, linux
+  string platform = 4; // ex: ubuntu, linuxmint
+  string platformFamily = 5; // ex: debian, rhel
+  string platformVersion = 6; // version of the complete OS
+  string kernelVersion = 7; // version of the OS kernel (if available)
+  string kernelArch = 8;  // native cpu architecture queried at runtime, as returned by `uname -m` or empty string in case of error
+  int32 cpuCount = 9; // cpu 数目
+  string cpuModel = 10; // cpu 类型
+}
+
+// cli信息
+message CliInfo {
+  string version = 1;
+}
+
+// 登录请求参数
+message CliLoginReq {
+  string account = 1;
+  string password = 2;
+  HostInfo hostinfo = 3;
+  CliInfo cliinfo = 4;
+}
+
+message Profile{
+  int32 id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string email = 4;
+}
+
+message LastOrg{
+  uint32 id = 1;
+  string title = 2;
+  string logo = 3;
+}
+
+message LoginReturn{
+  Profile profile = 1;
+  LastOrg last_org = 2;
+  string token = 3;
+}

@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "group.proto";
+import "creator.proto";
+
+message ProjectRepository {
+  uint32 type = 1;
+  uint32 provider = 2;
+  string clone_url = 3;
+}
+
+message ProjectListReq {
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  string keyword = 3;
+  uint32 page = 4;
+  uint32 pagesize = 5;
+}
+
+message ProjectListRsp {
+  uint32 page = 1;
+  uint32 pagesize = 2;
+  uint32 total = 3;
+  repeated ProjectList data = 4;
+}
+
+message ProjectList {
+  uint32 id = 1;
+  uint32 org_id = 2;
+  uint32 group_id = 3;
+  string title = 4;
+  string desc = 5;
+  bool develop = 6;
+  string alias = 7;
+  uint32 member_count = 8;
+  int64 last_active = 9;
+  Group group = 10;
+  uint32 instances = 11;
+}
+
+message ProjectBasicRsp {
+  ProjectBasic project = 1;
+}
+
+message ProjectBasic {
+  uint32 id = 1;
+  string title = 2;
+  string alias = 3;
+  string desc = 4;
+  bool develop = 5;
+  string image_name = 6;
+  string org_role = 7;
+  string group_role = 8;
+  string role = 9;
+  uint32 group_id = 10; // CLI context; the basic API does not return this field.
+}
+
+message ProjectSimpleReq {
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  string keyword = 3;
+}
+
+message ProjectSimpleRsp {
+  repeated ProjectSimple projects = 1;
+}
+
+message ProjectSimple {
+  uint32 id = 1;
+  string title = 2;
+}
+
+message ProjectProfileReq {
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+}
+
+message ProjectProfileRsp {
+  ProjectProfile project = 1;
+}
+
+message ProjectProfile {
+  uint32 id = 1;
+  uint32 group_id = 2;
+  uint32 org_id = 3;
+  string title = 4;
+  string desc = 5;
+  string alias = 6;
+  bool develop = 7;
+  uint32 member_count = 8;
+  Group group = 9;
+  int64 created_at = 10;
+  uint32 creator = 11;
+  Creator creator_info = 12;
+  uint32 default_port = 13;
+  ProjectRepository repository = 14;
+  string image_name = 15;
+  int64 last_active = 16;
+  uint32 instances = 17;
+  uint32 build_cluster_id = 18;
+}
+
+message ProjectDeleteOverview {
+  uint32 instances = 1;
+  uint32 images = 2;
+  uint32 pipelines = 3;
+  uint32 githooks = 4;
+  uint32 members = 5;
+  uint32 builds = 6;
+  uint32 deploys = 7;
+  string gitrepo = 8;
+}
+
+message ProjectDeleteReq {
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  string confirm_token = 4;
+}

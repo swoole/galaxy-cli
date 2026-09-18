@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+// 升级版本返回值
+message UpgradeInfo{
+  string version = 1;
+  string notes = 2;
+  string md5 = 3;
+  string os = 4;
+  string arch = 5;
+  int64 size = 6;
+  string download = 7;
+  int64 created_at = 8;
+}
+

@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "creator.proto";
+
+message SSLSimpleListReq{
+  uint32 org_id=1;
+  string keyword=2;
+  string domain=3;
+}
+
+message SSLSimpleListRsp{
+  repeated SSLSimpleList certs=1;
+}
+
+message SSLSimpleList{
+  uint32 id=1;
+  string title=2;
+}
+
+message SSLCertCreateReq{
+  uint32 org_id=1;
+  string title=2;
+  string pubkey=3;
+  string privkey=4;
+}
+
+message SSLCertCreateRsp{
+  SSLCertCreate cert=1;
+}
+
+
+message SSLCertCreate{
+  uint32 id=1;
+  uint32 org_id=2;
+  string title=3;
+  string pubkey=4;
+  string privkey=5;
+  SSLCertCreateAttrs  attrs=6;
+  uint32 creator=7;
+  int64 created_at=8;
+  Creator  creatorInfo=9;
+}
+//{"domain":"wiki.swoole.com","issuer":"Encryption Everywhere DV TLS CA - G1","sign":"RSA-SHA256","issue_at":1636934400,"expired_at":1668556799,"fingerprint":"06BAF40E0AB269D6EA72E8559EA856AC2C497202"}
+message SSLCertCreateAttrs{
+  string domain=1;
+  string issuer=2;
+  string sign=4;
+  int64 issue_at=5;
+  int64 expired_at=6;
+  string fingerprint=7;
+}
+
+message SSLCertListReq{
+  uint32 org_id=1;
+  string keyword=2;
+  string title=3;
+  uint32 page=4;
+  uint32 pagesize=5;
+}
+
+message SSLCertListRsp{
+  uint32 page = 1;
+  uint32 pagesize = 2;
+  uint32 total = 3;
+  repeated SSLCertList data = 4;
+}
+
+message SSLCertList{
+  uint32 id=1;
+  uint32 org_id=2;
+  string title=3;
+  SSLCertCreateAttrs attrs=4;
+  uint32 creator=5;
+  Creator creatorInfo=6;
+  int64 created_at=7;
+}
+
+message SSLCertDeleteReq{
+  uint32 ssl_cert_id=1;
+  uint32 org_id=2;
+  string confirm_token=3;
+}
+
+message SSLCertProfileReq{
+  uint32 ssl_cert_id=1;
+  uint32 org_id=2;
+}
+
+message SSLCertProfileRsp{
+  SSLCertProfile cert=1;
+}
+
+message SSLCertProfile{
+  uint32 id=1;
+  uint32 org_id=2;
+  string title=3;
+  SSLCertCreateAttrs attrs=4;
+  uint32 creator=5;
+  Creator creatorInfo=6;
+  int64 created_at=7;
+}

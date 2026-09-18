@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "creator.proto";
+
+enum PipelineType{
+  PipelineTypeUDF=0; //用户自定义
+  PipelineTypeDefault=1; //默认
+  PipelineTypeDefaultTPL=2; //默认流水线模板
+}
+
+//流水线列表请求参数
+message PipelineListReq{
+  uint32 org_id=1;
+  uint32 group_id=2;
+  uint32 project_id=3;
+  bool with_framework=4;
+  bool with_framework_version=5;
+  bool with_framework_lang_version=6;
+  string keyword=7;
+  uint32 page=8;
+  uint32 pagesize=9;
+}
+
+message PipeLineListRsp{
+  uint32 page = 1;
+  uint32 pagesize = 2;
+  uint32 total = 3;
+  repeated PipeLineListInfo data = 4;
+}
+// 流线列表内容
+message PipeLineListInfo{
+  uint32 id=1; //流水线id
+  uint32 org_id=2; //组织ID
+  uint32 group_id=3; // 项目组 ID
+  uint32 project_id=4; // 项目 ID
+  PipelineType type=5; //类型
+  string title=6; //标题
+  string remark=7; //备注
+  uint32 creator=8;
+  int64 created_at=9;
+  Creator creator_info=10;
+}
+
+
+message PipelineSimpleRsp{
+  repeated PipelineSimple pipelines = 1;
+}
+
+message PipelineSimple{
+  uint32 id = 1;
+  string title = 2;
+  string remark = 3;
+}

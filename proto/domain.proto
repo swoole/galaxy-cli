@@ -1,0 +1,170 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "env.proto";
+import "cluster.proto";
+import "creator.proto";
+import "https.proto";
+
+
+message Router{
+  uint32 pod_id=1;
+  uint32 service_id=2;
+  string prefix=3;
+  string title=4;
+  uint32 port=5;
+}
+
+message Attr{
+  repeated Https https=1;
+}
+
+
+message CreateDomainReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 env_id = 4;
+  uint32 cluster_id = 5;
+  string domain=6;
+  uint32 bandwidth=7;
+  repeated Attr attrs=8;
+  repeated Router routers=9;
+}
+
+
+message ProjectDomainListReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  string empty_routers=4;
+  string domain=5;
+}
+
+message ProjectDomainListRsp{
+  repeated ProjectDomainList domains=1;
+}
+
+message ProjectDomainList{
+  uint32 id = 1;
+  uint32 org_id = 2;
+  uint32 env_id = 3;
+  uint32 cluster_id = 4;
+  string domain=5;
+  uint32 bandwidth=6;
+  uint32 creator=7;
+  int64 created_at=8;
+  Env env=9;
+  Cluster cluster=10;
+  repeated Attr attrs=11;
+  repeated Router routers=12;
+  Creator  creator_info=13;
+}
+
+message DomainProfileReq{
+  uint32 org_id=1;
+  uint32 domain_id=2;
+}
+message DomainProfileRsp{
+  DomainProfile domain=1;
+}
+message DomainProfile{
+  uint32 id=1;
+  uint32 org_id=2;
+  uint32 cluster_id=3;
+  string domain=4;
+  uint32 bandwidth=5;
+  uint32 creator=6;
+  int64 created_at=7;
+  Cluster cluster=8;
+  Router routers=9;
+  Creator creatorInfo=10;
+}
+
+message DomainListReq{
+  uint32 org_id=1;
+  uint32 cluster_id=2;
+  string keyword=3;
+  uint32 page=4;
+  uint32 pagesize=5;
+}
+
+message DomainListRsp{
+  uint32 total=1;
+  uint32 page=2;
+  uint32 pagesize=3;
+  repeated DomainList data=4;
+}
+
+message DomainListAttr{
+  Https https=1;
+}
+
+message DomainList{
+  uint32 id=1;
+  uint32 org_id=2;
+  uint32 cluster_id=3;
+  string domain=4;
+  uint32 bandwidth=5;
+  uint32 creator=6;
+  int64 created_at=7;
+  Cluster  cluster=8;
+  Creator  creator_info=9;
+  DomainListAttr  attrs=10;
+  repeated Router routers=11;
+}
+
+// 创建域名
+message DomainCreateReq{
+  uint32 org_id=1;
+  uint32 cluster_id=2;
+  string domain=3;
+  uint32 bandwidth=4;
+  DomainListAttr  attrs=5;
+  repeated Router routers=6;
+}
+
+message DomainCreateRsp{
+  uint32 domain_id=1;
+}
+
+message DomainDeleteReq{
+  uint32 domain_id=1;
+  uint32 org_id=2;
+}
+
+message DomainSimpleReq{
+  uint32 org_id=1;
+  uint32 cluster_id=2;
+  uint32 group_id=3;
+  uint32 project_id=4;
+  string keyword=5;
+}
+
+message DomainSimpleRsp{
+  repeated DomainSimple domains=1;
+}
+
+message DomainSimple{
+  uint32 id=1;
+  string domain=2;
+  int64 created_at=3;
+}
+
+message DomainAvailableBwReq{
+  uint32 org_id=1;
+  uint32 cluster_id=2;
+}
+message DomainUpdateAttr{
+  uint32 bandwidth=1;
+  Https https=2;
+}
+message DomainUpdateAttrReq{
+  uint32 org_id=1;
+  uint32 cluster_id=2;
+  string domain=3;
+  DomainUpdateAttr  attrs=4;
+}

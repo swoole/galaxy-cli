@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+// 创建私人秘钥请求
+message UserPersonalSshKeyCreateReq{
+  string pubkey = 1;
+  string remark = 2;
+}
+// 创建私人秘钥返回值
+message UserPersonalSshKeyCreateRsp{
+  UserPersonalSshKeyCreate key = 1;
+}
+
+message UserPersonalSshKeyCreate{
+  uint32 id = 1;
+  uint32 uid = 2;
+  string pubkey = 3;
+  string remark = 4;
+  string fingerprint = 5;
+  int64 created_at = 6;
+}
+message UserPlatformSshPublicKeyRsp{
+  UserPlatformSshPublicKey sshkey = 1;
+}
+
+message UserPlatformSshPublicKey{
+  string pubkey = 1;
+  int64 generate_at = 2;
+  UserPlatformSshPublicKeyFingerprint fingerprint = 3;
+}
+
+message UserPlatformSshPublicKeyFingerprint{
+  string sha256 = 1;
+}

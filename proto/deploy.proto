@@ -1,0 +1,213 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "env.proto";
+import "cluster.proto";
+import "creator.proto";
+import "image.proto";
+
+//部署状态
+enum DeployStatus{
+  STATUS_PENDING_AUDIT = 0;//待审核
+  STATUS_PENDING_PUBLISH = 1;//待发布
+  STATUS_REJECTED = 2; //被驳回
+  STATUS_PUBLISHING = 3; //发布中
+  STATUS_PUBLISH = 4; //发布成功
+  STATUS_PUBLISH_FAILED = 5; //发布失败
+  STATUS_ROLLING = 6;//回滚中
+  STATUS_ROLLBACK = 7;//回滚成功
+  STATUS_ROLL_FAILED = 8;//回滚失败
+}
+
+enum PodHealth{
+  PodHealthNotDef = 0;
+  PodHealthNormal = 1;
+  PodHealthWarn = 2;
+  PodHealthExcep = 3;
+}
+enum PodStatus{
+  STATUS_STOPPED = 0;
+  STATUS_RUNNING = 1;
+}
+
+// 伸缩方式：0-固定副本数；1-定时伸缩；2-弹性伸缩
+enum FlexMethod{
+  FlexMethodFixed = 0;
+  FlexMethodTiming = 1;
+  FlexMethodElastic = 2;
+}
+
+message CanDeployReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 image_id = 4;
+}
+
+message CanDeployPodsRspCluster{
+  uint32 id=1;
+  uint32 org_id=2;
+  string title=3;
+  ClusterType  type=4;
+  ClusterVendor  vendor=5;
+}
+message CanDeployPodsRspEnv{
+  uint32 id=1;
+  string title=2;
+  repeated CanDeployPodsRspCluster clusters=3;
+}
+message CanDeployPodsRsp{
+  repeated CanPod pods = 1;
+  map<uint32,CanDeployPodsRspEnv> envs=2;
+  map<uint32,CanDeployPodsRspCluster> clusters=3;
+}
+
+message CanPod {
+  uint32 id = 1;
+  uint32 env_id = 2;
+  uint32 cluster_id = 3;
+  string group = 4;
+  bool can = 5;
+  PodHealth health = 6;
+  Env env = 7;
+  Cluster cluster = 8;
+}
+
+message DeployTarget{
+  string group = 1;
+  uint32 env_id = 2;
+  uint32 cluster_id = 3;
+}
+
+message DeployReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 image_id = 4;
+  string remark = 5;
+  repeated DeployTarget targets = 6;
+}
+
+message DeployRsp{
+  string status = 1;
+  DeployResultsRsp  results = 2;
+}
+
+message DeployResultsRsp{
+  uint32 id = 1;
+  uint32 deployment_id = 2;
+  uint32 env_id = 3;
+  uint32 cluster_id = 4;
+  string group = 5;
+  uint32 code = 6;
+  string msg = 7;
+  Env env = 8;
+  Cluster cluster = 9;
+  string context = 10;
+}
+message OverviewReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+}
+message OverviewRsp{
+  repeated Pod pods = 1;
+}
+
+message Pod {
+  uint32 id = 1;
+  uint32 org_id = 2;
+  uint32 group_id = 3;
+  uint32 project_id = 4;
+  uint32 env_id = 5;
+  uint32 cluster_id = 6;
+  string group = 7;
+  PodHealth health = 8; //健康状态：1-健康；2-风险；3-异常
+  Env env = 9;
+  PodCluster cluster = 10;
+  uint32 image_id = 11;
+  PodImage image = 12;
+  PodStatus status = 13; //状态：0-已停止；1-运行中
+  string health_info = 14; //健康信息，后面看k8s返回，选择使用字符串或者json
+  FlexMethod flex_method = 15; //伸缩方式：0-固定副本数；1-定时伸缩；2-弹性伸缩
+  uint32 deploy_id = 16; //部署记录ID
+  PodDeploy deploy = 17; // 部署记录
+  uint32 real_count = 18; //实际副本数
+  uint32 expect_count = 19; //预期副本数
+}
+
+message PodCluster{
+  uint32 id = 1;
+  string title = 2;
+  string type = 3;
+  string vendor = 4;
+}
+
+message PodImage{
+  uint32 id = 1;
+  string image = 2;
+  string branch = 3;
+  string commit_id = 4;
+}
+
+message PodDeploy{
+  uint32 id = 1;
+  string remark = 2;
+  string creator = 3;
+  int64 created_at = 4;
+}
+
+// 发布记录列表请求结构
+message DeployListReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 env_id = 4;
+  uint32 cluster_id = 5;
+  string group = 6;
+  uint32 image_id = 7;
+  uint32 status = 8;
+  uint32 page = 9;
+  uint32 pagesize = 10;
+}
+
+message DeployListRsp{
+  uint32 page = 1;
+  uint32 pagesize = 2;
+  uint32 total = 3;
+  repeated DeployList data = 4;
+}
+
+message DeployList{
+  uint32 id = 1;
+  uint32 org_id = 2;
+  uint32 group_id = 3;
+  uint32 project_id = 4;
+  uint32 env_id = 5;
+  uint32 cluster_id = 6;
+  string group = 7;
+  uint32 image_id = 8;
+  string remark = 9;
+  DeployStatus status = 10;
+  uint32 creator = 11;
+  int64 created_at = 12;
+  Cluster  cluster = 13;
+  Creator  creator_info = 14;
+  Env env = 15;
+  Image  image = 16;
+}
+
+//回滚请求
+message DeployRollbackReq{
+  uint32 deploy_id=1;
+  uint32 org_id = 2;
+  uint32 group_id = 3;
+  uint32 project_id = 4;
+}
+// 回滚响应
+message DeployRollbackRsp{
+  DeployStatus status=1;
+}

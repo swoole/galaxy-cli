@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+message Response {
+  int32 code = 1;
+  string msg = 2;
+}

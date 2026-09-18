@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "creator.proto";
+
+//实例情况
+message Instance{
+  uint32 all = 1; //总实例数
+  uint32 deployed = 2; //部署实例数
+}
+
+message ImageListReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 page = 4;
+  uint32 pagesize = 5;
+  string commitid=6;
+  string tag=7;
+  string short_name=8;
+  string version_prefix=9;
+}
+
+// 镜像列表返回值
+message ImageListRsp{
+  uint32 page = 1;
+  uint32 pagesize = 2;
+  uint32 total = 3;
+  repeated Image data = 4;
+}
+// 镜像
+message Image{
+  uint32 id = 1;
+  uint32 org_id = 2;
+  uint32 group_id = 3;
+  uint32 project_id = 4;
+  uint32 build_id = 5;
+  string image = 6;
+  string branch = 7;
+  string commit_id = 8;
+  string remark = 9;
+  uint64 size = 10;
+  uint32 creator = 11;
+  Creator  creator_info = 12;
+  int64 created_at = 13;
+  Instance instance = 14;
+  string short_name = 15;
+}
+
+message ImageDeleteReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 image_id=4;
+}

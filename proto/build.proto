@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+import "pipeline.proto";
+import "creator.proto";
+
+enum BuildStatus {
+  BuildStatusPending = 0; //待执行
+  BuildStatusRunning = 1; //执行中
+  BuildStatusSuccess = 2; //执行成功
+  BuildStatusFailed = 3; //执行失败
+}
+
+message BuildReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pipeline_id = 4;
+  string remark = 5;
+  string branch = 6;
+  string commit_id = 7;
+  int64 hook_id = 8;
+}
+
+message BuildRsp{
+  BuildRspInfo build = 1;
+}
+// 构建响应信息
+message BuildRspInfo{
+  uint32 id = 1;
+  uint32 org_id = 2;
+  uint32 group_id = 3;
+  uint32 project_id = 4;
+  uint32 pipeline_id = 5;
+  string branch = 6;
+  string commit_id = 7;
+  PipelineSimple pipeline = 8; //流水线
+  string pipelinerun_name = 9; //构建生成的run_name
+  string remark = 10;
+  int64 start_at = 11;
+  int64 end_at = 12;
+  BuildStatus status = 13; // 状态：0-待执行；1-执行中；2-执行成功；3-执行失败
+  int32 hook_id = 14;
+  uint32 creator = 15;
+  Creator creator_info = 16;
+}
+
+// 构建日志请求参数
+message BuildLogReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 build_id = 4;
+}
+
+message BuildLogRsp{
+  BuildLogRspInfo buildlog = 1;
+}
+
+// log返回值
+message BuildLogRspInfo{
+  uint32 id = 1;
+  string branch = 2;
+  string commit_id = 3;
+  int64 start_at = 4;
+  int64 end_at = 5;
+  BuildStatus status = 6;
+  string error = 7;
+  string image_id = 8;
+  string content = 9;
+  string timeline = 10;
+}
+
+// 获取构建列表请求
+message BuildListReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pipeline_id = 4;
+  BuildStatus  status = 5;
+  uint32 hook_id = 6;
+  uint32 page = 7;
+  uint32 pagesize = 8;
+}
+
+// 构建列表响应信息
+message BuildListRsp{
+  sint32 page = 1;
+  sint32 pagesize = 2;
+  sint32 total = 3;
+  repeated BuildRspInfo data = 4;
+}
+
+// 重新构建请求
+message BuildReReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 build_id = 4;
+}
+
+
+message BuildFastReq{
+  uint32 org_id = 1;
+  uint32 group_id = 2;
+  uint32 project_id = 3;
+  uint32 pipeline_hook_id=4;
+}
+
+message BuildFastRsp{
+  BuildFast fastbuild=1;
+}
+
+message BuildFast{
+  string branch=1;
+  string commit_id=2;
+  uint32 pipeline_id=3;
+  PipelineSimple pipeline=4;
+  string remark=5;
+}

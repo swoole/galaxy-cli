@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+
+message Https{
+  required uint32 enable = 1;
+  required uint32 cert_id=2;
+  required uint32 http2=3;
+  required uint32 force_https=4;
+}

@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package protoc;
+
+option go_package = "/protoc;protoc";
+
+import "creator.proto";
+import "env.proto";
+
+enum ClusterType{
+  TYPE_SELF_PAY = 0;//自费
+  TYPE_MANAGED = 1; // 托管
+}
+
+enum ClusterSource{
+  SOURCE_CREATE = 0; // 自动创建
+  SOURCE_IMPORT = 1; // 自动导入
+  SOURCE_FILL = 2; // 手动导入
+}
+
+enum ClusterVendor{
+  VENDOR_NONE = 0; // 无,自建
+  VENDOR_TKE_MANAGED = 1; // 腾讯云TKE托管版
+  VENDOR_ACK_MANAGED = 2; // 阿里云ACK托管版
+  VENDOR_LINODE = 3; // linode
+}
+
+message ClusterCpu{
+  string all = 1;
+  float usage = 2;
+}
+message ClusterMem{
+  string all = 1;
+  float usage = 2;
+}
+message ClusterDisk{
+  string all = 1;
+  float usage = 2;
+}
+message ClusterReq{
+  uint32 org_id = 1;
+  uint32 env_id = 2;
+  string keyword = 3;
+}
+message ClusterSimpleListRsp{
+  repeated Cluster clusters = 1;
+}
+message Cluster{
+  uint32 id = 1;
+  string title = 2;
+  string resolve = 3;
+  uint32 type = 4;
+  uint32 vendor = 5;
+  string remark = 6;
+}
+
+
+message ClusterListRsp{
+  repeated ClusterListInfo clusters = 1;
+}
+
+message ClusterListInfo{
+  uint32 id = 1;
+  uint32 org_id = 2;
+  string title = 3;
+  ClusterType type = 4;
+  ClusterVendor vendor = 5;
+  string resolve = 6;
+  uint32 creator = 7;
+  Creator  creator_info = 8;
+  int64 created_at = 9;
+  repeated Env envs = 10;
+  ClusterMem  mem = 11;
+  ClusterDisk  disk = 12;
+  ClusterCpu  cpu = 13;
+}
