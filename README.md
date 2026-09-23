@@ -50,14 +50,15 @@ make agent-image \
 ```bash
 sudo galaxy agent install \
   --server https://galaxy.example.com \
-  --image registry.example.com/galaxy/galaxy-agent:1.0.3
+  --image registry.cn-shanghai.aliyuncs.com/swoole-public/galaxy-agent:1.0.3
 ```
 
-CLI 不内置任何镜像仓库地址。Agent 镜像按以下优先级确定：`--image` 参数、
-环境变量 `GALAXY_AGENT_IMAGE`、构建时通过 `AgentImage` 注入的默认值；三者都
-未提供时 `agent install` 会直接报错。发布指定版本可执行
-`make build AgentImage=registry.example.com/galaxy/galaxy-agent:<version>`
-与 `make agent-image AgentImage=registry.example.com/galaxy/galaxy-agent:<version>`。
+正式构建默认使用 `registry.cn-shanghai.aliyuncs.com/swoole-public`。Agent
+镜像按以下优先级确定：`--image` 参数、环境变量 `GALAXY_AGENT_IMAGE`、构建时
+通过 `AgentImage` 注入的默认值；三者都未提供时 `agent install` 会直接报错。
+发布指定版本可执行
+`make build AgentImage=registry.cn-shanghai.aliyuncs.com/swoole-public/galaxy-agent:<version>`
+与 `make agent-image AgentImage=registry.cn-shanghai.aliyuncs.com/swoole-public/galaxy-agent:<version>`。
 
 从 `1.0.3` 开始，使用 IP 地址连接管理中心且 Galaxy API 与 Swarm Manager
 部署在同一主机时，Manager IP 变化后 Agent 会先尝试原地址，再使用 Docker
@@ -190,7 +191,7 @@ sudo galaxy agent set \
 
 ```bash
 sudo galaxy agent set \
-  --image registry.example.com/galaxy/galaxy-agent:1.0.3
+  --image registry.cn-shanghai.aliyuncs.com/swoole-public/galaxy-agent:1.0.3
 ```
 
 `--server` 与 `--image` 可以在一次调用中同时设置。`agent set` 仅通过 Manager 本机

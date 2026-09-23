@@ -6,8 +6,8 @@ GOARCH      ?= $(shell go env GOARCH)
 
 # AgentImage 会通过 -ldflags 写入二进制，成为 `galaxy agent install` 的默认镜像。
 # 发布时传入实际仓库地址，例如：
-#   make build AgentImage=registry.example.com/galaxy/galaxy-agent:1.0.3
-AgentImage ?= galaxy-agent:$(VERSION)
+#   make build AgentImage=registry.cn-shanghai.aliyuncs.com/swoole-public/galaxy-agent:1.0.3
+AgentImage ?= registry.cn-shanghai.aliyuncs.com/swoole-public/galaxy-agent:$(VERSION)
 
 # Agent 镜像内的 Go Module 下载与校验地址，可使用企业内部代理覆盖。
 GoProxy ?= https://goproxy.cn,direct

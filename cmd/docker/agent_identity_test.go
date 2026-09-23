@@ -3,6 +3,7 @@ package docker
 import (
 	"encoding/base64"
 	"encoding/json"
+	"galaxy/pkg/buildVariable"
 	"galaxy/pkg/galaxycfg"
 	"os"
 	"path/filepath"
@@ -186,6 +187,15 @@ func TestDefaultAgentImageFromEnvironment(t *testing.T) {
 
 	require.Equal(t, "registry.example.com/galaxy/galaxy-agent:9.9.9", image)
 	require.NoError(t, requireAgentImage(image))
+}
+
+func TestDefaultAgentImageEnvironmentOverridesBuildDefault(t *testing.T) {
+	original := buildVariable.AgentImage
+	buildVariable.AgentImage = "registry.example.com/galaxy/galaxy-agent:1.0.0"
+	t.Cleanup(func() { buildVariable.AgentImage = original })
+	t.Setenv(envAgentImage, "mirror.example.com/galaxy-agent:1.0.0")
+
+	require.Equal(t, "mirror.example.com/galaxy-agent:1.0.0", defaultAgentImage())
 }
 
 func TestRequireAgentImageRejectsEmpty(t *testing.T) {

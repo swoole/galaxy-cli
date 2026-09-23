@@ -1940,14 +1940,13 @@ func environmentAgentConnection() (*agentConnection, string, error) {
 	}, strings.TrimSpace(os.Getenv("GALAXY_API_URL")), nil
 }
 
-// defaultAgentImage 返回 Agent 镜像，优先级为编译期通过 -ldflags 注入的
-// buildVariable.AgentImage、环境变量 GALAXY_AGENT_IMAGE，最后为空。
-// 发行版不内置任何镜像仓库地址，未配置时必须通过 --image 显式指定。
+// defaultAgentImage 返回 Agent 镜像。环境变量允许覆盖发行版通过 -ldflags
+// 注入的默认地址；命令行的 --image 参数由 Cobra 在此默认值之上处理。
 func defaultAgentImage() string {
-	if image := strings.TrimSpace(buildVariable.AgentImage); image != "" {
+	if image := strings.TrimSpace(os.Getenv(envAgentImage)); image != "" {
 		return image
 	}
-	return strings.TrimSpace(os.Getenv(envAgentImage))
+	return strings.TrimSpace(buildVariable.AgentImage)
 }
 
 // requireAgentImage 校验 Agent 镜像已配置，供安装和本地配置流程快速失败。

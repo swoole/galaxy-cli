@@ -1,4 +1,4 @@
-FROM golang:1.26-alpine AS build
+FROM registry.cn-shanghai.aliyuncs.com/swoole-public/golang:1.26-alpine AS build
 
 WORKDIR /src
 ARG GOPROXY=https://goproxy.cn,direct
@@ -16,7 +16,7 @@ RUN CGO_ENABLED=0 go build \
     -o /out/galaxy-agent \
     ./cmd/galaxy-agent
 
-FROM alpine:3.22 AS certificates
+FROM registry.cn-shanghai.aliyuncs.com/swoole-public/alpine:3.22 AS certificates
 
 RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories \
     && apk add --no-cache ca-certificates
