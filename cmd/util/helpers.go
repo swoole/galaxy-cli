@@ -7,12 +7,9 @@ import (
 	"galaxy/pkg/galaxycfg"
 	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/os/glog"
-	"github.com/spf13/cobra"
-	"k8s.io/apimachinery/pkg/util/yaml"
 	"net/url"
 	"os"
 	"strings"
-	"time"
 )
 
 const (
@@ -73,46 +70,6 @@ func StandardErrorMessage(err error) (string, bool) {
 	return "", false
 }
 
-func GetFlagBool(cmd *cobra.Command, flag string) bool {
-	b, err := cmd.Flags().GetBool(flag)
-	if err != nil {
-		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
-	}
-	return b
-}
-func GetFlagDuration(cmd *cobra.Command, flag string) time.Duration {
-	d, err := cmd.Flags().GetDuration(flag)
-	if err != nil {
-		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
-	}
-	return d
-}
-func UsageErrorf(cmd *cobra.Command, format string, args ...interface{}) error {
-	msg := fmt.Sprintf(format, args...)
-	return fmt.Errorf("%s\nSee '%s -h' for help and examples", msg, cmd.CommandPath())
-}
-
-func AddPodRunningTimeoutFlag(cmd *cobra.Command, defaultTimeout time.Duration) {
-	cmd.Flags().Duration("pod-running-timeout", defaultTimeout, "The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running")
-}
-func AddContainerVarFlags(cmd *cobra.Command, p *string, containerName string) {
-	cmd.Flags().StringVarP(p, "container", "c", containerName, "Container name. If omitted, use the kubectl.kubernetes.io/default-container annotation for selecting the container to be attached or the first container in the pod will be chosen")
-}
-
-func GetPodRunningTimeoutFlag(cmd *cobra.Command) (time.Duration, error) {
-	timeout := GetFlagDuration(cmd, "pod-running-timeout")
-	if timeout <= 0 {
-		return timeout, fmt.Errorf("--pod-running-timeout must be higher than zero")
-	}
-	return timeout, nil
-}
-
-// SaveGalaxyProjectConfig persists an already-resolved Project mapping without
-// trying to infer Project identity from a repository URL.
-func SaveGalaxyProjectConfig(projectRoot string, projects ...galaxycfg.Project) error {
-	return SaveGalaxyProjectConfigForServer(projectRoot, "", projects...)
-}
-
 // SaveGalaxyProjectConfigForServer persists the project mapping together with
 // the API Server used to resolve it. Subsequent commands can therefore select
 // the matching credentials without requiring --server on every invocation.
@@ -143,18 +100,6 @@ func ManualStrip(file []byte) []byte {
 		if i < len(lines)-1 {
 			stripped = append(stripped, '\n')
 		}
-	}
-	return stripped
-}
-
-// StripComments will transform a YAML file into JSON, thus dropping any comments
-// in it. Note that if the given file has a syntax error, the transformation will
-// fail and we will manually drop all comments from the file.
-func StripComments(file []byte) []byte {
-	stripped := file
-	stripped, err := yaml.ToJSON(stripped)
-	if err != nil {
-		stripped = ManualStrip(file)
 	}
 	return stripped
 }

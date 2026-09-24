@@ -56,6 +56,9 @@ func (that *optionsOrg) Validate() error {
 func (that *optionsOrg) Run() error {
 	var org *protoc.Organization
 	org, err := organization.NewService(that.cfgFlags).SelectedOrg("选择你要切换的组织", that.orgName)
+	if err != nil {
+		return err
+	}
 	if org.GetId() <= 0 {
 		return nil
 	}

@@ -12,7 +12,6 @@ import (
 )
 
 type optionsProject struct {
-	args        []string
 	projectName string
 	cfgFlags    *galaxycfg.ConfigFlags
 	galaxycfg.IOStreams

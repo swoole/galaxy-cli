@@ -73,34 +73,6 @@ func appendLine(p *types.Profile, line string) {
 	p.AddRoute(route)
 }
 
-func TestNewProfile(t *testing.T) {
-	t.Run("parser.ParseProfile", func(t *testing.T) {
-		r := strings.NewReader(`
-3.3.3.4 some.profile.loc
-3.3.3.4 first.loc
-`)
-		p, err := ParseProfile(r)
-		assert.NoError(t, err)
-		hosts, err := p.GetHostNames("3.3.3.4")
-		assert.NoError(t, err)
-		assert.Equal(t, []string{"some.profile.loc", "first.loc"}, hosts)
-	})
-
-	t.Run("parser.ParseProfile non-uniq", func(t *testing.T) {
-		r := strings.NewReader(`
-3.3.3.4 some.profile.loc
-# non-route-line
-3.3.3.4 first.loc
-3.3.3.4 first.loc
-`)
-		p, err := ParseProfile(r)
-		assert.NoError(t, err)
-		hosts, err := p.GetHostNames("3.3.3.4")
-		assert.NoError(t, err)
-		assert.Equal(t, []string{"some.profile.loc", "first.loc"}, hosts)
-	})
-}
-
 func TestParser(t *testing.T) {
 	t.Run("appendLine enabled", func(t *testing.T) {
 		p := &types.Profile{

@@ -2,12 +2,20 @@ package cliui
 
 import (
 	"bytes"
+	"io"
 	"strings"
 	"testing"
 
 	"charm.land/lipgloss/v2"
 	"github.com/stretchr/testify/require"
 )
+
+func NewForTest(output io.Writer, color bool, width int) Renderer {
+	if width < 60 {
+		width = 120
+	}
+	return Renderer{output: output, color: color, width: width}
+}
 
 func TestChecksRenderAsUnicodeTableWithoutANSIForPlainOutput(t *testing.T) {
 	var output bytes.Buffer

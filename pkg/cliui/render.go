@@ -66,13 +66,6 @@ func New(output io.Writer) Renderer {
 	return renderer
 }
 
-func NewForTest(output io.Writer, color bool, width int) Renderer {
-	if width < 60 {
-		width = 120
-	}
-	return Renderer{output: output, color: color, width: width}
-}
-
 func (r Renderer) Title(title, subtitle string) {
 	fmt.Fprintln(r.output, r.paint("\n◆ "+title, "\x1b[1;36m"))
 	if strings.TrimSpace(subtitle) != "" {

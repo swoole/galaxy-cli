@@ -9,9 +9,8 @@ import (
 )
 
 type Service struct {
-	cfgFlags  *galaxycfg.ConfigFlags
-	client    *httpclient.HttpClient
-	questions []*survey.Question
+	cfgFlags *galaxycfg.ConfigFlags
+	client   *httpclient.HttpClient
 }
 
 func NewService(cfgFlags *galaxycfg.ConfigFlags) *Service {
@@ -53,28 +52,6 @@ func (that *Service) Simple(req *protoc.GroupListReq) ([]*protoc.Group, error) {
 	return groupSimpleRsp.GetGroups(), nil
 }
 
-func (that *Service) Question(groups []*protoc.Group) (*protoc.Group, error) {
-	if len(groups) == 1 {
-		return groups[0], nil
-	}
-	titles := make([]string, len(groups))
-	for i, m := range groups {
-		titles[i] = m.Title
-	}
-	survey.SelectQuestionTemplate = selectQuestionTemplate
-	answerIndex := 0
-	// ask the question
-	err := survey.AskOne(&survey.Select{
-		Message: "请选择项目组:",
-		Options: titles,
-		Default: titles[0],
-	}, &answerIndex)
-	if err != nil {
-		return nil, err
-	}
-	return groups[answerIndex], nil
-}
-
 func (that *Service) SelectedGroup(msg string, groupName string) (*protoc.Group, error) {
 	groups, err := that.Simple(&protoc.GroupListReq{OrgId: that.cfgFlags.GalaxyConfig.GetDefaultOrg().Id})
 	if err != nil {
@@ -110,21 +87,3 @@ func (that *Service) SelectedGroup(msg string, groupName string) (*protoc.Group,
 	}
 	return groups[answerIndex], nil
 }
-
-var selectQuestionTemplate = `
-{{- define "option"}}
-    {{- if eq .SelectedIndex .CurrentIndex }}{{color .Config.Icons.SelectFocus.Format }}{{ .Config.Icons.SelectFocus.Text }} {{else}}{{color "default"}}  {{end}}
-    {{- .CurrentOpt.Value}}{{ if ne ($.GetDescription .CurrentOpt) "" }} - {{color "cyan"}}{{ $.GetDescription .CurrentOpt }}{{end}}
-    {{- color "reset"}}
-{{end}}
-{{- if .ShowHelp }}{{- color .Config.Icons.Help.Format }}{{ .Config.Icons.Help.Text }} {{ .Help }}{{color "reset"}}{{"\n"}}{{end}}
-{{- color .Config.Icons.Question.Format }}{{ .Config.Icons.Question.Text }} {{color "reset"}}
-{{- color "default+hb"}}{{ .Message }}{{ .FilterMessage }}{{color "reset"}}
-{{- if .ShowAnswer}}{{color "cyan"}} {{.Answer}}{{color "reset"}}{{"\n"}}
-{{- else}}
-  {{- "  "}}{{- color "cyan"}}[请使用上下箭头移动选择，输入字符过滤过滤, type to filter{{- if and .Help (not .ShowHelp)}}, {{ .Config.HelpInput }} for more help{{end}}]{{color "reset"}}
-  {{- "\n"}}
-  {{- range $ix, $option := .PageEntries}}
-    {{- template "option" $.IterateOption $ix $option}}
-  {{- end}}
-{{- end}}`

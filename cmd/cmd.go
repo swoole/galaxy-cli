@@ -32,8 +32,6 @@ import (
 	"strings"
 )
 
-const galaxyCmdHeaders = "GALAXY_COMMAND_HEADERS"
-
 type GalaxyOptions struct {
 	Arguments   []string
 	ConfigFlags *galaxycfg.ConfigFlags

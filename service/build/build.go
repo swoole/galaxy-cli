@@ -69,18 +69,6 @@ func (that *Service) ReBuild(req *protoc.BuildReReq) (*protoc.BuildRspInfo, erro
 	return buildRsp.GetBuild(), nil
 }
 
-// FastBuild 获取快速构建参数
-// BuildLog 构建日志
-func (that *Service) BuildLog(req *protoc.BuildLogReq) (*protoc.BuildLogRspInfo, error) {
-
-	var buildRsp *protoc.BuildLogRsp
-	err := that.client.Get("/build/log", req, &buildRsp)
-	if err != nil {
-		return nil, err
-	}
-	return buildRsp.GetBuildlog(), nil
-}
-
 func (that *Service) BuildLogWatch(req *protoc.BuildLogReq, log chan []byte) error {
 	type currentLog struct {
 		Status int32  `json:"status"`

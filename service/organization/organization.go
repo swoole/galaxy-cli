@@ -86,26 +86,6 @@ func (that *Service) SelectedOrg(msg string, orgName string) (*protoc.Organizati
 	return orgs[answerIndex], nil
 }
 
-func OrgROLEString(expr protoc.OrgROLE) string {
-	switch expr {
-	case protoc.OrgROLE_ROLE_Normal:
-		return "未知"
-	case protoc.OrgROLE_ROLE_MANAGER:
-		return "管理员"
-	case protoc.OrgROLE_ROLE_PM:
-		return "产品经理"
-	case protoc.OrgROLE_ROLE_DEV:
-		return "研发"
-	case protoc.OrgROLE_ROLE_TESTER:
-		return "测试"
-	case protoc.OrgROLE_ROLE_OPS:
-		return "运维"
-	case protoc.OrgROLE_ROLE_DIRECTOR:
-		return "负责人"
-	}
-	return "未知"
-}
-
 func OrgAUTHString(expr protoc.OrgAUTH) string {
 	switch expr {
 	case protoc.OrgAUTH_AUTH_NO:
@@ -125,16 +105,6 @@ func OrgTYPEString(expr protoc.OrgTYPE) string {
 		return "个人"
 	case protoc.OrgTYPE_TYPE_COMPANY:
 		return "公司"
-	}
-	return "未知"
-}
-
-func OrgSTATUSString(expr protoc.OrgSTATUS) string {
-	switch expr {
-	case protoc.OrgSTATUS_STATUS_NORMAL:
-		return "正常"
-	case protoc.OrgSTATUS_STATUS_IN_DISSOLUTION:
-		return "解散中"
 	}
 	return "未知"
 }

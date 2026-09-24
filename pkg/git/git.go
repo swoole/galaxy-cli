@@ -1,12 +1,9 @@
 package git
 
 import (
-	"fmt"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/gogf/gf/os/gfile"
 	"github.com/jiangxin/goconfig"
 )
 
@@ -113,21 +110,4 @@ func (that *Git) Repository() (*git.Repository, error) {
 	}
 	that.repo = r
 	return r, nil
-}
-
-func NewRemote() error {
-	gitCfg, err := goconfig.Load(gfile.Pwd())
-	if err != nil {
-		return err
-	}
-	r := git.NewRemote(nil,
-		&config.RemoteConfig{Name: gitCfg.Get("origin"), URLs: []string{gitCfg.Get("remote.origin.url")}},
-	)
-	r1, err := r.List(&git.ListOptions{})
-	if err != nil {
-		return err
-	}
-	fmt.Println(r1[0].Hash())
-	fmt.Println(r1[1].Hash())
-	return nil
 }

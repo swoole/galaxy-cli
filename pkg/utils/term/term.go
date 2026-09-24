@@ -47,22 +47,6 @@ type TTY struct {
 	// it will be invoked after the terminal state is restored. If it is not provided,
 	// a signal received during the TTY will result in os.Exit(0) being invoked.
 	Parent *interrupt.Handler
-
-	// sizeQueue is set after a call to MonitorSize() and is used to monitor SIGWINCH signals when the
-	// user's terminal resizes.
-	sizeQueue *sizeQueue
-}
-
-// IsTerminalIn returns true if t.In is a terminal. Does not check /dev/tty
-// even if TryDev is set.
-func (t TTY) IsTerminalIn() bool {
-	return IsTerminal(t.In)
-}
-
-// IsTerminalOut returns true if t.Out is a terminal. Does not check /dev/tty
-// even if TryDev is set.
-func (t TTY) IsTerminalOut() bool {
-	return IsTerminal(t.Out)
 }
 
 // IsTerminal returns whether the passed object is a terminal or not
@@ -128,10 +112,6 @@ func (t TTY) Safe(fn SafeFunc) error {
 		return err
 	}
 	return interrupt.Chain(t.Parent, func() {
-		if t.sizeQueue != nil {
-			t.sizeQueue.stop()
-		}
-
 		term.RestoreTerminal(inFd, state)
 	}).Run(fn)
 }

@@ -6,7 +6,6 @@ import (
 	"galaxy/pkg/galaxycfg"
 	"galaxy/pkg/httpclient"
 	terminal "galaxy/pkg/utils/term"
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/gorilla/websocket"
 	"io"
 	"net/url"
@@ -84,40 +83,6 @@ func (s *Service) ServiceContainers(orgID, groupID, projectID, clusterID uint32,
 	return rsp.Containers, nil
 }
 
-func (s *Service) Select(orgID, groupID, projectID, clusterID uint32, preferred string) (*Container, error) {
-	containers, err := s.Containers(orgID, groupID, projectID, clusterID)
-	if err != nil {
-		return nil, err
-	}
-	var running []*Container
-	for _, item := range containers {
-		if item.State != "running" {
-			continue
-		}
-		if preferred != "" && (item.Name == preferred || item.ID == preferred || strings.HasPrefix(item.ID, preferred)) {
-			return item, nil
-		}
-		running = append(running, item)
-	}
-	if preferred != "" {
-		return nil, fmt.Errorf("未找到运行中的容器 %q", preferred)
-	}
-	if len(running) == 0 {
-		return nil, fmt.Errorf("当前项目在所选集群中没有运行中的容器")
-	}
-	if len(running) == 1 {
-		return running[0], nil
-	}
-	titles := make([]string, len(running))
-	for i, item := range running {
-		titles[i] = fmt.Sprintf("%s [%s]", item.Name, shortID(item.ID))
-	}
-	selected := 0
-	if err := survey.AskOne(&survey.Select{Message: "请选择容器", Options: titles, Default: titles[0]}, &selected); err != nil {
-		return nil, err
-	}
-	return running[selected], nil
-}
 func (s *Service) Exec(orgID, groupID, projectID, clusterID uint32, containerID string, command []string, workingDir string) (*ExecResult, error) {
 	params := scope(orgID, groupID, projectID, clusterID)
 	params["container_id"] = containerID
@@ -245,12 +210,6 @@ func (s *Service) Interactive(orgID, groupID, projectID, clusterID uint32, conta
 		}
 		return err
 	})
-}
-func shortID(id string) string {
-	if len(id) > 12 {
-		return id[:12]
-	}
-	return id
 }
 func isShell(command []string) bool {
 	if len(command) != 1 {

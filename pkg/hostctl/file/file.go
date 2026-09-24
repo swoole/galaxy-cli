@@ -2,7 +2,6 @@ package file
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -13,230 +12,93 @@ import (
 	"galaxy/pkg/hostctl/types"
 )
 
-// File container to handle a hosts file.
+// File manages the Galaxy profiles stored in a hosts file.
 type File struct {
-	fs        afero.Fs
-	src       afero.File
-	data      *types.Content
-	hasBanner bool
-	mutex     sync.Mutex
+	fs    afero.Fs
+	path  string
+	data  *types.Content
+	mutex sync.Mutex
 }
 
-// NewFile creates a new File from the given src on default OS filesystem.
-func NewFile(src string) (*File, error) {
-	return NewWithFs(src, afero.NewOsFs())
+func NewFile(path string) (*File, error) {
+	return NewWithFs(path, afero.NewOsFs())
 }
 
-// NewWithFs creates a new File with src and an existing filesystem.
-func NewWithFs(src string, fs afero.Fs) (*File, error) {
+func NewWithFs(path string, fs afero.Fs) (*File, error) {
 	if fs == nil {
 		fs = afero.NewOsFs()
 	}
-
-	s, err := fs.Open(src)
+	source, err := fs.Open(path)
 	if err != nil {
 		return nil, err
 	}
+	defer source.Close()
 
-	f := &File{src: s, fs: fs}
-
-	_, _ = f.src.Seek(0, io.SeekStart)
-	data, err := parser.Parse(f.src)
-	f.data = data
-
+	data, err := parser.Parse(source)
 	if err != nil {
 		return nil, err
 	}
-
-	return f, nil
+	return &File{fs: fs, path: path, data: data}, nil
 }
 
-// GetStatus returns a map with the status of the given profiles.
-func (f *File) GetStatus(profiles []string) map[string]types.Status {
-	st := map[string]types.Status{}
-
-	for _, name := range profiles {
-		p, ok := f.data.Profiles[name]
-		if !ok {
-			continue
-		}
-
-		st[name] = p.Status
-	}
-
-	return st
-}
-
-// GetEnabled returns a list of profiles that are Enabled.
-func (f *File) GetEnabled() []string {
-	enabled := []string{}
-
-	for _, name := range f.data.ProfileNames {
-		if f.data.Profiles[name].Status == types.Enabled {
-			enabled = append(enabled, name)
-		}
-	}
-
-	return enabled
-}
-
-// GetDisabled returns a list of profiles that are Enabled.
-func (f *File) GetDisabled() []string {
-	disabled := []string{}
-
-	for _, name := range f.data.ProfileNames {
-		if f.data.Profiles[name].Status == types.Disabled {
-			disabled = append(disabled, name)
-		}
-	}
-
-	return disabled
-}
-
-// GetProfile return a Profile from the list.
 func (f *File) GetProfile(name string) (*types.Profile, error) {
-	p, ok := f.data.Profiles[name]
+	profile, ok := f.data.Profiles[name]
 	if !ok {
 		return nil, types.ErrUnknownProfile
 	}
-
-	return p, nil
+	return profile, nil
 }
 
-// GetProfileNames return a list of all profile names.
-func (f *File) GetProfileNames() []string {
-	return f.data.ProfileNames
-}
-
-// AddRoute adds a single route information to a given profile.
 func (f *File) AddRoute(name string, route *types.Route) error {
 	return f.AddRoutes(name, []*types.Route{route})
 }
 
-// AddRoutes adds routes information to a given profile.
 func (f *File) AddRoutes(name string, routes []*types.Route) error {
-	p, err := f.GetProfile(name)
+	profile, err := f.GetProfile(name)
 	if err != nil && !errors.Is(err, types.ErrUnknownProfile) {
 		return err
 	}
-
-	if p == nil {
-		p = &types.Profile{
-			Name:   name,
-			Status: types.Enabled,
-			Routes: map[string]*types.Route{},
-		}
-
-		p.AddRoutes(routes)
-
-		return f.AddProfile(p)
+	if profile == nil {
+		profile = &types.Profile{Name: name, Status: types.Enabled, Routes: map[string]*types.Route{}}
+		profile.AddRoutes(routes)
+		return f.AddProfile(profile)
 	}
-
-	p.AddRoutes(routes)
-
+	profile.AddRoutes(routes)
 	return nil
 }
 
-// RemoveHostnames removes route information from a given types.
-// also removes the profile if it gets empty.
-func (f *File) RemoveHostnames(name string, routes []string) (bool, error) {
-	p, err := f.GetProfile(name)
-	if err != nil {
-		return false, err
-	}
-
-	p.RemoveHostnames(routes)
-
-	if len(p.Routes) == 0 {
-		err := f.RemoveProfile(p.Name)
-		if err != nil {
-			return false, err
-		}
-
-		return true, nil
-	}
-
-	return false, nil
-}
-
-// WriteTo overwrite file with hosts info.
-func (f *File) WriteTo(src string) error {
-	h, err := f.fs.OpenFile(src, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644) //nolint: gomnd
-	if err != nil {
-		return err
-	}
-
-	return f.writeToFile(h)
-}
-
-// Flush overwrite file with hosts info.
 func (f *File) Flush() error {
-	h, err := f.fs.OpenFile(f.src.Name(), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644) //nolint: gomnd
+	destination, err := f.fs.OpenFile(f.path, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
-	defer h.Close()
-
-	return f.writeToFile(h)
+	defer destination.Close()
+	return f.writeToFile(destination)
 }
 
-// writeToFile overwrite file with hosts info.
-func (f *File) writeToFile(dst afero.File) error {
+func (f *File) writeToFile(destination afero.File) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
 	if f.data == nil {
 		return types.ErrNoContent
 	}
-
-	err := dst.Truncate(0)
-	if err != nil {
+	if err := destination.Truncate(0); err != nil {
 		return err
 	}
-
-	err = f.data.DefaultProfile.Render(dst)
-	if err != nil {
+	if _, err := destination.Seek(0, io.SeekStart); err != nil {
 		return err
 	}
-
-	//f.writeBanner(dst)
-
+	if err := f.data.DefaultProfile.Render(destination); err != nil {
+		return err
+	}
 	for _, name := range f.data.ProfileNames {
 		if name == types.Default {
 			continue
 		}
-
-		p := f.data.Profiles[name]
-
-		err := p.Render(dst)
-		if err != nil {
+		if err := f.data.Profiles[name].Render(destination); err != nil {
 			return err
 		}
 	}
-
 	return nil
-}
-
-func (f *File) writeBanner(w io.StringWriter) {
-	if f.hasBanner {
-		return
-	}
-
-	_, _ = w.WriteString(fmt.Sprintf("%s\n", Banner))
-	f.hasBanner = true
-}
-
-// Close closes the underlying file.
-func (f *File) Close() {
-	f.src.Close()
-}
-
-func contains(s []string, n string) bool {
-	for _, x := range s {
-		if x == n {
-			return true
-		}
-	}
-
-	return false
 }

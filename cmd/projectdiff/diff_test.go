@@ -307,10 +307,10 @@ func TestSelectRuntimeRequiresNameWhenMultipleExist(t *testing.T) {
 		{ID: 1, Name: "开发环境"},
 		{ID: 2, Name: "线上环境"},
 	}
-	if _, err := selectRuntime(runtimes, ""); err == nil {
+	if _, err := selectRuntimeForCommand(runtimes, "", "diff"); err == nil {
 		t.Fatal("selectRuntime() error = nil, want explicit instance error")
 	}
-	selected, err := selectRuntime(runtimes, "线上环境")
+	selected, err := selectRuntimeForCommand(runtimes, "线上环境", "diff")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -321,7 +321,7 @@ func TestSelectRuntimeRequiresNameWhenMultipleExist(t *testing.T) {
 
 func TestSelectRuntimeDefaultsOnlyInstance(t *testing.T) {
 	runtime := &instance.Runtime{ID: 8, Name: "swoole-business"}
-	selected, err := selectRuntime([]*instance.Runtime{runtime}, "")
+	selected, err := selectRuntimeForCommand([]*instance.Runtime{runtime}, "", "diff")
 	if err != nil {
 		t.Fatal(err)
 	}

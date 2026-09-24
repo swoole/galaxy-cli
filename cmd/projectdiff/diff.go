@@ -233,10 +233,6 @@ func (o *Options) selectTarget(project *galaxycfg.Project) (*target, error) {
 	return &target{runtime: runtime, container: matches[selected], clusterID: runtime.Cluster.ID}, nil
 }
 
-func selectRuntime(runtimes []*instance.Runtime, preferred string) (*instance.Runtime, error) {
-	return selectRuntimeForCommand(runtimes, preferred, "diff")
-}
-
 func selectRuntimeForCommand(runtimes []*instance.Runtime, preferred, commandName string) (*instance.Runtime, error) {
 	if len(runtimes) == 0 {
 		return nil, fmt.Errorf("当前项目没有可用的部署实例")

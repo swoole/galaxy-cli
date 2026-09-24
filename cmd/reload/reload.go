@@ -8,8 +8,7 @@ import (
 )
 
 type options struct {
-	forcePull bool
-	cfgFlags  *galaxycfg.ConfigFlags
+	cfgFlags *galaxycfg.ConfigFlags
 	galaxycfg.IOStreams
 }
 

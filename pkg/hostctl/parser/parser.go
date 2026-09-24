@@ -160,33 +160,3 @@ func parseRouteLine(str string) (*types.Route, bool) {
 
 	return &types.Route{IP: ip, HostNames: hostnames}, true
 }
-
-// ParseProfile creates a new profile reading lines from a reader.
-func ParseProfile(r io.Reader) (*types.Profile, error) {
-	p := &types.Profile{}
-	s := bufio.NewScanner(r)
-
-	var routes []*types.Route
-
-	for s.Scan() {
-		line := string(s.Bytes())
-		if line == "" {
-			continue
-		}
-
-		route, ok := parseRouteLine(line)
-		if !ok {
-			continue
-		}
-
-		routes = append(routes, route)
-
-		if err := s.Err(); err != nil {
-			return nil, err
-		}
-	}
-
-	p.AddRoutes(routes)
-
-	return p, nil
-}

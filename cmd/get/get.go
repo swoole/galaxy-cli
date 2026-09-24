@@ -10,7 +10,6 @@ type Options struct {
 	PrintFlags *PrintFlags
 	CmdParent  string
 	NoHeaders  bool
-	args       []string
 	cfgFlags   *galaxycfg.ConfigFlags
 	galaxycfg.IOStreams
 }
